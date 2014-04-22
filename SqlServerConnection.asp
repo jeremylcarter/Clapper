@@ -1061,47 +1061,7 @@ End Function
 
                 if (Response.IsClientConnected && count <= 0) {
 
-                    for (var i = 0; i < rs.Fields.Count; i++) {
-
-                        var dataType = rs.Fields(i).Type;
-						
-                        if (rs.Fields(i).Value == null) {
-                            eval("itemObject." + rs.Fields(i).Name + " = null;");
-                        } else {
-                            switch (dataType) {
-                                case 205: // Binary					
-                                    eval("itemObject." + rs.Fields(i).Name + " = null;");
-                                    break;
-                                case 11: // Bool
-                                    eval("itemObject." + rs.Fields(i).Name + " = new Boolean(" + rs.Fields(i).Value + ");");
-                                    break;
-                            	case 3: case 5:case 6: case 14: // Int/BigInt/Numeric
-                                    eval("itemObject." + rs.Fields(i).Name + " = " + rs.Fields(i).Value + ";");
-                                    break;									
-                                case 16: case 2: case 20 : case 131: // Int/BigInt/Numeric
-                                    eval("itemObject." + rs.Fields(i).Name + " = " + rs.Fields(i).Value + ";");
-                                    break;
-                                case 135: case 7: // DateTime
-                                    eval("itemObject." + rs.Fields(i).Name + " = new Date('" + rs.Fields(i).Value + "').getVarDate();");
-                                    break;
-                                default:
-                                    try {
-                                        var value = (rs.Fields(i).Value).replace(/([\\"'])/g, "\\$1").replace(/\0/g, "\\0");
-                                        eval("itemObject." + rs.Fields(i).Name + " = (new String('" + value + "')).rtrim();");
-                                        value = null;
-                                    }
-                                    catch (e) {
-										// Some line breaks create unterminated string constants
-										try {
-											 eval('itemObject.' + rs.Fields(i).Name + ' = \"' + rs.Fields(i).Value.replace(/[\r\n]+/gm,"\\ ") + '\";');										
-										} catch(e) {
-											//Response.Write(e.message);
-											eval("itemObject." + rs.Fields(i).Name + " = null;");
-										}
-                                    }
-                            }
-                        }
-                    }
+                    createObject(rs, itemObject);
                 } // Client Connected
 
                 count = count + 1;
@@ -1133,56 +1093,14 @@ End Function
 
                 var itemObject = new Object();
 
-                for (var i = 0; i < rs.Fields.Count; i++) {
+                createObject(rs, itemObject);
 
-                    var dataType = rs.Fields(i).Type;
-                    //Response.Write(dataType + " at:" + rs.Fields(i).Name + "<br>");
-                    //Response.Write(typeof(rs.Fields(i).Value)==null);
-                    if (rs.Fields(i).Value == null) {
-                        eval("itemObject." + rs.Fields(i).Name + " = null;");
-                    } else {
-                        switch (dataType) {
-                            case 205: // Binary					
-                                eval("itemObject." + rs.Fields(i).Name + " = null;");
-                                break;
-                            case 11: // Bool
-                                eval("itemObject." + rs.Fields(i).Name + " = new Boolean(" + rs.Fields(i).Value + ");");
-                                break;
-                            case 3: case 5:case 6: case 14: // Int/BigInt/Numeric
-                                eval("itemObject." + rs.Fields(i).Name + " = " + rs.Fields(i).Value + ";");
-                                break;						
-                            case 16: case 2: case 20 : case 131: // Int/BigInt/Numeric
-                                eval("itemObject." + rs.Fields(i).Name + " = " + rs.Fields(i).Value + ";");
-                                break;
-                            case 135: case 7: // DateTime
-                                eval("itemObject." + rs.Fields(i).Name + " = new Date('" + rs.Fields(i).Value + "').getVarDate();");
-                                break;
-                            default:
-                                try {
-                                    var value = (rs.Fields(i).Value).replace(/([\\"'])/g, "\\$1").replace(/\0/g, "\\0");
-                                    eval("itemObject." + rs.Fields(i).Name + " = (new String('" + value + "')).rtrim();");
-                                    value = null;
-                                }
-                                catch (e) {
-                                    // Some line breaks create unterminated string constants
-								    try {
-										 eval('itemObject.' + rs.Fields(i).Name + ' = \"' + rs.Fields(i).Value.replace(/[\r\n]+/gm,"\\ ") + '\";');										
-									} catch(e) {
-										//Response.Write(e.message);
-										eval("itemObject." + rs.Fields(i).Name + " = null;");
-									}
-									
-                                }
-                        }
-                    }
-                }
                 returnList.push(itemObject);
 
             } // Client Connected
 
             rs.MoveNext();
         }
-
         return returnList;
     }
 
@@ -1196,52 +1114,9 @@ End Function
             if (Response.IsClientConnected) {
 
                 var itemObject = new Object();
-									
-					for (var i = 0; i < rs.Fields.Count; i++) {
 
-                    var dataType = rs.Fields(i).Type;
-                    //Response.Write(" Code:" + dataType + " at:" + rs.Fields(i).Name + "<br>");			
-                    //Response.Write(typeof(rs.Fields(i).Value)==null);
-                    if (rs.Fields(i).Value == null) {
-                        eval("itemObject." + rs.Fields(i).Name + " = null;");
-                    } else {
-                        switch (dataType) {
-                            case 205: // Binary					
-                                eval("itemObject." + rs.Fields(i).Name + " = null;");
-                                break;
-                            case 11: // Bool
-                                eval("itemObject." + rs.Fields(i).Name + " = new Boolean(" + rs.Fields(i).Value + ");");
-                                break;
-						    case 3: case 5:case 6: case 14: // Int/BigInt/Numeric
-                                eval("itemObject." + rs.Fields(i).Name + " = " + rs.Fields(i).Value + ";");
-                                break;							
-                            case 16: case 2: case 20 : case 131: // Int/BigInt/Numeric
-                                eval("itemObject." + rs.Fields(i).Name + " = " + rs.Fields(i).Value + ";");
-                                break;
-                            case 135: case 7: // DateTime
-                                eval("itemObject." + rs.Fields(i).Name + " = new Date('" + rs.Fields(i).Value + "').getVarDate();");
-                                break;
-                            default:
-                                try {
-									
-                                    var value = (rs.Fields(i).Value).replace(/([\\"'])/g, "\\$1").replace(/\0/g, "\\0");
-									eval("itemObject." + rs.Fields(i).Name + " = (new String('" + value + "')).rtrim();");
-									value = null;
-                                }
-                                catch (e) {
-									
-									// Some line breaks create unterminated string constants
-									try {
-										 eval('itemObject.' + rs.Fields(i).Name + ' = \"' + rs.Fields(i).Value.replace(/[\r\n]+/gm,"\\ ") + '\";');										
-									} catch(e) {
-										eval("itemObject." + rs.Fields(i).Name + " = null;");
-									}
+                createObject(rs, itemObject);
 
-                                }
-                        }
-                    } 
-	
-                }
                 returnList.Add(itemObject);
 
             } // Client Connected
@@ -1250,4 +1125,54 @@ End Function
         }
         return returnList;
 	}
+
+    //Moved the code that coverted a rs into a dynamic object to a function to consolidate replicated code
+    function createObject(rs, itemObject){
+        for (var i = 0; i < rs.Fields.Count; i++) {
+            var dataType = rs.Fields(i).Type;
+            //Response.Write(dataType + " at:" + rs.Fields(i).Name + "<br>");
+            //Response.Write(typeof(rs.Fields(i).Value)==null);
+            if (rs.Fields(i).Value == null) {
+                eval("itemObject." + rs.Fields(i).Name + " = null;");
+            } else {
+                switch (dataType) {
+                    case 205: // Binary
+                        eval("itemObject." + rs.Fields(i).Name + " = null;");
+                        break;
+                    case 11: // Bool
+                        eval("itemObject." + rs.Fields(i).Name + " = new Boolean(" + rs.Fields(i).Value + ");");
+                        break;
+                    case 3: case 5:case 6: case 14: // Int/BigInt/Numeric
+                        eval("itemObject." + rs.Fields(i).Name + " = " + rs.Fields(i).Value + ";");
+                        break;
+                    case 16: case 2: case 20 : case 131: // Int/BigInt/Numeric
+                        eval("itemObject." + rs.Fields(i).Name + " = " + rs.Fields(i).Value + ";");
+                        break;
+                    case 135: case 7: // DateTime
+                        eval("itemObject." + rs.Fields(i).Name + " = new Date('" + rs.Fields(i).Value + "').getVarDate();");
+                        break;
+                    default:
+                        try {
+                            var value = (rs.Fields(i).Value).replace(/([\\"'])/g, "\\$1").replace(/\0/g, "\\0");
+                            eval("itemObject." + rs.Fields(i).Name + " = (new String('" + value + "')).rtrim();");
+                        }
+                        catch (e) {
+                            // Some line breaks create unterminated string constants
+                            try {
+                                /*
+                                    Used "value" from the first try block instead of rs.Fields(i).Value so we keep the
+                                    already escaped \ " ' and null strings as we escape \r and \n
+                                */
+                                 eval('itemObject.' + rs.Fields(i).Name + ' = \"' + value.replace(/[\r\n]+/gm,"\\ ") + '\";');
+                            } catch(e) {
+                                //Response.Write(e.message);
+                                value = null;
+                                eval("itemObject." + rs.Fields(i).Name + " = null;");
+                            }
+                        }
+                }
+            }
+        }
+        return itemObject;
+    }
 </script>
